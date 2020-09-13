@@ -1,6 +1,7 @@
 import pygame
 import os
 import math
+import random
 
 # setup display
 pygame.init()
@@ -11,6 +12,7 @@ pygame.display.set_caption("Hangman Game")
 # fonts
 LETTER_FONT = pygame.font.SysFont("comicsans", 40)
 WORD_FONT = pygame.font.SysFont("comicsans", 60)
+TITLE_FONT = pygame.font.SysFont("comicsans", 70)
 
 # load images
 images = []
@@ -33,12 +35,15 @@ for i in range(26):
 
 # game variables
 hangman_status = 0
-word =  "DEVELOPER"
+words = ["HELLO", "PYTHON", "PYGAME", "IDE", "VSCODE", "JAVASCRIPT", "SQL", "HTML", "YOUTUBE", "DEVELOPER"]
+word =  random.choice(words)
 guessed = []
 
 # colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
 
 # set up game loop
 FPS = 60
@@ -47,6 +52,10 @@ run = True
 
 def draw():
     win.fill(WHITE)
+
+    # drw title
+    text = TITLE_FONT.render("HANGMAN GAME", 1, BLACK)
+    win.blit(text, (WIDTH/2 - text.get_width()/2, 20))
 
     # draw word
     display_word = ""
@@ -69,9 +78,16 @@ def draw():
     win.blit(images[hangman_status], (150, 100))
     pygame.display.update()
 
+def display_message(msg, color):
+    pygame.time.delay(1000)
+    win.fill(color)
+    text = WORD_FONT.render(msg, 1, BLACK)
+    win.blit(text, (WIDTH/2 - text.get_width()/2, HEIGHT/2 - text.get_height()/2))
+    pygame.display.update()
+    pygame.time.delay(3000)
+
 while run:
     clock.tick(FPS)
-    draw()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -85,5 +101,22 @@ while run:
                 if dis < RADIUS:
                     letter[3] = False
                     guessed.append(ltr)
+                    if ltr not in word:
+                        hangman_status += 1
+    draw()
+
+    won = True
+    for letter in word:
+        if letter not in guessed:
+            won = False
+            break
+    
+    if won:
+        display_message("YOU WON!", GREEN)
+        break
+
+    if hangman_status == 6:
+        display_message("YOU LOST!", RED)
+        break
 
 pygame.quit()
